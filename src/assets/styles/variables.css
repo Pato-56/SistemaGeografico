@@ -1,0 +1,49 @@
+/* ============================================================
+   variables.css  —  Tokens de diseño globales
+   Sistema Web de Censo Hotelero · UAGro · Acapulco 2026
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Outfit:wght@300;400;500;600&display=swap');
+
+:root {
+  /* ── Paleta principal ── */
+  --azul-oscuro:  #0d1f4e;
+  --azul-medio:   #1a3a7c;
+  --azul-claro:   #2d5bbf;
+  --rojo:         #c0392b;
+  --rojo-claro:   #e74c3c;
+  --rojo-suave:   #f1948a;
+
+  /* ── Neutros ── */
+  --blanco:       #ffffff;
+  --gris-suave:   #f4f6fb;
+  --gris-borde:   #dde3f0;
+  --texto-oscuro: #0d1f4e;
+
+  /* ── Semánticos ── */
+  --verde:        #27ae60;
+  --amarillo:     #f39c12;
+  --morado:       #7d3c98;
+
+  /* ── Tipografías ── */
+  --font-serif:  'Playfair Display', Georgia, serif;
+  --font-sans:   'Outfit', system-ui, sans-serif;
+
+  /* ── Layout ── */
+  --sidebar-w:   240px;
+  --topbar-h:    60px;
+  --radius-sm:   8px;
+  --radius-md:   12px;
+  --radius-lg:   16px;
+  --radius-xl:   20px;
+  --radius-full: 9999px;
+
+  /* ── Sombras ── */
+  --shadow-sm:   0 2px 12px rgba(0,0,0,0.06);
+  --shadow-md:   0 4px 20px rgba(0,0,0,0.12);
+  --shadow-lg:   0 8px 40px rgba(13,31,78,0.2);
+  --shadow-xl:   0 20px 60px rgba(0,0,0,0.25);
+
+  /* ── Transiciones ── */
+  --transition: 0.15s ease;
+}

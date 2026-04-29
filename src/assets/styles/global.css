@@ -1,0 +1,85 @@
+/* ============================================================
+   global.css  —  Reset + estilos base compartidos
+   ============================================================ */
+
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-sans);
+  color: var(--texto-oscuro);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Fondo oscuro con gradientes radiales (páginas standalone) ── */
+.bg-dark-page {
+  min-height: 100vh;
+  background: var(--azul-oscuro);
+  background-image:
+    radial-gradient(ellipse at 80% 0%,  rgba(192,57,43,0.2)   0%, transparent 55%),
+    radial-gradient(ellipse at 10% 90%, rgba(45,91,191,0.25)  0%, transparent 50%);
+}
+
+/* ── Ola SVG decorativa de fondo ── */
+.bg-dark-page::before {
+  content: '';
+  position: fixed;
+  bottom: -40px; left: 0; right: 0;
+  height: 180px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 180'%3E%3Cpath fill='%23c0392b' fill-opacity='0.08' d='M0,96L48,106.7C96,117,192,139,288,133.3C384,128,480,96,576,90.7C672,85,768,107,864,112C960,117,1056,107,1152,96C1248,85,1344,75,1392,69.3L1440,64L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z'/%3E%3C/svg%3E") no-repeat bottom;
+  background-size: cover;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Fondo app (páginas con sidebar) ── */
+.bg-app-page {
+  min-height: 100vh;
+  background: var(--gris-suave);
+  display: flex;
+}
+
+/* ── Animaciones ── */
+@keyframes fadeDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes fieldIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-20px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes slideRight {
+  from { opacity: 0; transform: translateX(20px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.95) translateY(16px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes bounceIn {
+  0%   { transform: scale(0.3); opacity: 0; }
+  60%  { transform: scale(1.1); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(192,57,43,0.4); }
+  50%       { box-shadow: 0 0 0 12px rgba(192,57,43,0); }
+}

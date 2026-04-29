@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard Administrador — Censo Hotelero</title>
+  <link rel="stylesheet" href="../../assets/styles/variables.css"/>
+  <link rel="stylesheet" href="../../assets/styles/global.css"/>
+  <link rel="stylesheet" href="../../assets/styles/components.css"/>
+  <link rel="stylesheet" href="../../assets/styles/pages-app.css"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+</head>
+<body class="bg-app-page">
+
+  <!-- ══ SIDEBAR ══ -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="escudo escudo--sm">UAG</div>
+      <div class="logo-text" style="display:flex;flex-direction:column;">
+        <span style="font-family:var(--font-serif);font-size:13px;font-weight:700;color:white;line-height:1.3;">Censo Hotelero</span>
+        <span style="font-size:10px;color:rgba(200,215,255,0.5);letter-spacing:1px;text-transform:uppercase;margin-top:2px;">Acapulco · UAGro</span>
+      </div>
+    </div>
+
+    <!-- Perfil del usuario -->
+    <div class="sidebar-user" style="cursor:pointer;" onclick="navegar('perfil')" title="Ver mi perfil">
+      <div class="user-avatar">👤</div>
+      <div class="user-info">
+        <div class="name" id="sidebarNombre">Cargando…</div>
+        <div class="role" id="sidebarRol">⚙️ Administrador</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Principal</div>
+      <div class="nav-item active" onclick="navegar('dashboard')">
+        <span class="nav-icon">🏠</span> Dashboard
+      </div>
+      <div class="nav-item" onclick="navegar('mapa')">
+        <span class="nav-icon">🗺</span> Mapa interactivo
+      </div>
+
+      <div class="nav-section-label" style="margin-top:8px;">Gestión</div>
+      <div class="nav-item" onclick="navegar('usuarios')">
+        <span class="nav-icon">👥</span> Usuarios
+      </div>
+      <div class="nav-item" onclick="navegar('hoteles')">
+        <span class="nav-icon">🏨</span> Hoteles
+      </div>
+      <div class="nav-item" onclick="navegar('validar')">
+        <span class="nav-icon">✅</span> Validar registros
+      </div>
+      <div class="nav-item" onclick="navegar('registro')">
+        <span class="nav-icon">➕</span> Nuevo registro
+      </div>
+
+      <div class="nav-section-label" style="margin-top:8px;">Análisis</div>
+      <div class="nav-item" onclick="navegar('reportes')">
+        <span class="nav-icon">📊</span> Estadísticas
+      </div>
+      <div class="nav-item" onclick="navegar('reportes')">
+        <span class="nav-icon">📄</span> Exportar reporte
+      </div>
+
+      <div class="nav-section-label" style="margin-top:8px;">Sistema</div>
+      <div class="nav-item" onclick="navegar('perfil')">
+        <span class="nav-icon">👤</span> Mi perfil
+      </div>
+    </nav>
+
+    <div class="sidebar-bottom">
+      <button class="btn-logout" onclick="cerrarSesion()">
+        <span class="nav-icon">🚪</span> Cerrar sesión
+      </button>
+    </div>
+  </aside>
+
+  <!-- ══ MAIN ══ -->
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <h3>Panel de Administrador</h3>
+        <p>Control total del sistema — Censo Hotelero Acapulco 2026</p>
+      </div>
+      <div class="topbar-right">
+        <div class="topbar-date" id="fechaHoy"></div>
+        <div class="notif-btn" onclick="navegar('usuarios')" title="Usuarios pendientes" style="cursor:pointer;">
+          🔔<div class="notif-dot"></div>
+        </div>
+      </div>
+    </header>
+
+    <div class="content">
+
+      <!-- Bienvenida -->
+      <div class="welcome-bar">
+        <div class="welcome-text">
+          <h2 id="welcomeNombre">Bienvenido 🛠️</h2>
+          <p id="welcomeMsg">Cargando información del sistema…</p>
+        </div>
+        <div class="welcome-actions">
+          <button class="welcome-action" onclick="navegar('usuarios')">👥 Gestionar usuarios</button>
+          <button class="welcome-action" onclick="navegar('reportes')">📄 Exportar reporte</button>
+        </div>
+      </div>
+
+      <!-- KPIs fila 1 -->
+      <div class="kpi-grid">
+        <div class="kpi-card k-blue" onclick="navegar('usuarios')" style="cursor:pointer;">
+          <div class="kpi-top"><div class="kpi-icon">👥</div><div class="kpi-trend up">▲ Usuarios</div></div>
+          <div class="kpi-val" id="kpiUsuarios">—</div>
+          <div class="kpi-lbl">Usuarios registrados</div>
+          <div class="kpi-bar"><div class="kpi-bar-fill" style="background:var(--azul-claro);" id="b1"></div></div>
+        </div>
+        <div class="kpi-card k-green" onclick="navegar('hoteles')" style="cursor:pointer;">
+          <div class="kpi-top"><div class="kpi-icon">🏨</div><div class="kpi-trend up">▲ Hoteles</div></div>
+          <div class="kpi-val" id="kpiHoteles">—</div>
+          <div class="kpi-lbl">Hoteles registrados</div>
+          <div class="kpi-bar"><div class="kpi-bar-fill" style="background:var(--verde);" id="b2"></div></div>
+        </div>
+        <div class="kpi-card k-yellow" onclick="navegar('validar')" style="cursor:pointer;">
+          <div class="kpi-top"><div class="kpi-icon">✅</div><div class="kpi-trend neu">● Avance</div></div>
+          <div class="kpi-val" id="kpiValidados">—</div>
+          <div class="kpi-lbl">Registros validados</div>
+          <div class="kpi-bar"><div class="kpi-bar-fill" style="background:var(--amarillo);" id="b3"></div></div>
+        </div>
+        <div class="kpi-card k-red" onclick="navegar('hoteles')" style="cursor:pointer;">
+          <div class="kpi-top"><div class="kpi-icon">🛏</div><div class="kpi-trend up">Capacidad</div></div>
+          <div class="kpi-val" id="kpiHab">—</div>
+          <div class="kpi-lbl">Habitaciones censadas</div>
+          <div class="kpi-bar"><div class="kpi-bar-fill" style="background:var(--rojo);" id="b4"></div></div>
+        </div>
+      </div>
+
+      <!-- Tabla usuarios + Actividad -->
+      <div style="display:grid;grid-template-columns:1fr 320px;gap:20px;margin-bottom:20px;">
+        <div class="section-card">
+          <div class="section-header">
+            <div class="section-header-left">
+              <div class="section-accent"></div>
+              <div><div class="section-title">Gestión de usuarios</div><div class="section-sub">Administrar roles y accesos</div></div>
+            </div>
+            <button class="section-action" onclick="navegar('usuarios')">+ Ver todos</button>
+          </div>
+          <table class="data-table">
+            <thead><tr><th>Usuario</th><th>Rol</th><th>Registros</th><th>Estado</th><th>Acciones</th></tr></thead>
+            <tbody id="usuariosBody">
+              <tr><td colspan="5" style="text-align:center;padding:20px;color:#9baabe;">Cargando…</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="section-card">
+          <div class="section-header">
+            <div class="section-header-left">
+              <div class="section-accent"></div>
+              <div><div class="section-title">Actividad del sistema</div><div class="section-sub">Últimas acciones globales</div></div>
+            </div>
+          </div>
+          <div id="actividadSistema">
+            <div style="padding:20px;text-align:center;color:#9baabe;font-size:13px;">Cargando…</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Zonas + Gráfica censadores -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;">
+        <div class="section-card">
+          <div class="section-header">
+            <div class="section-header-left">
+              <div class="section-accent"></div>
+              <div><div class="section-title">Zonas turísticas</div><div class="section-sub">Cobertura por zona</div></div>
+            </div>
+            <button class="section-action" onclick="navegar('usuarios')">Ver zonas</button>
+          </div>
+          <div class="zonas-grid" id="zonasGrid">
+            <div style="padding:20px;text-align:center;color:#9baabe;font-size:13px;">Cargando…</div>
+          </div>
+        </div>
+        <div class="section-card">
+          <div class="section-header">
+            <div class="section-header-left">
+              <div class="section-accent"></div>
+              <div><div class="section-title">Registros por censador</div><div class="section-sub">Producción individual</div></div>
+            </div>
+            <button class="section-action" onclick="navegar('reportes')">Ver reporte</button>
+          </div>
+          <div style="padding:16px 20px 20px;height:260px;position:relative;">
+            <canvas id="barCensadores"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Separador estadísticas -->
+      <div class="stats-sep">
+        <div class="stats-sep-line"></div>
+        <div class="stats-sep-pill"><span>📊</span><span>Estadísticas Generales</span></div>
+        <div class="stats-sep-line" style="background:linear-gradient(90deg,var(--azul-claro),var(--rojo),transparent);"></div>
+      </div>
+
+      <!-- KPIs estadísticas -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px;" id="statsKpis2">
+        <div style="height:100px;background:var(--gris-suave);border-radius:16px;animation:pulse 1.5s infinite;"></div>
+        <div style="height:100px;background:var(--gris-suave);border-radius:16px;animation:pulse 1.5s infinite;animation-delay:0.1s;"></div>
+        <div style="height:100px;background:var(--gris-suave);border-radius:16px;animation:pulse 1.5s infinite;animation-delay:0.2s;"></div>
+        <div style="height:100px;background:var(--gris-suave);border-radius:16px;animation:pulse 1.5s infinite;animation-delay:0.3s;"></div>
+      </div>
+
+      <!-- Gráficas -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;">
+        <div class="section-card">
+          <div class="section-header"><div class="section-header-left"><div class="section-accent"></div><div><div class="section-title">Estado operativo por zona</div><div class="section-sub">Abierto · Parcial · Cerrado</div></div></div></div>
+          <div style="padding:16px 20px 20px;height:250px;position:relative;"><canvas id="stackedBar"></canvas></div>
+        </div>
+        <div class="section-card">
+          <div class="section-header"><div class="section-header-left"><div class="section-accent"></div><div><div class="section-title">Habitaciones por zona</div><div class="section-sub">Capacidad hotelera registrada</div></div></div></div>
+          <div style="padding:16px 20px 20px;height:250px;position:relative;"><canvas id="barHab"></canvas></div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:8px;">
+        <div class="section-card">
+          <div class="section-header"><div class="section-header-left"><div class="section-accent"></div><div><div class="section-title">Validación del censo</div><div class="section-sub">Validados · Pendientes · Rechazados</div></div></div></div>
+          <div style="padding:16px 20px 20px;height:240px;position:relative;display:flex;align-items:center;justify-content:center;gap:28px;">
+            <canvas id="pieVal" style="max-width:190px;max-height:190px;"></canvas>
+            <div id="pieLeyenda" style="display:flex;flex-direction:column;gap:12px;"></div>
+          </div>
+        </div>
+        <div class="section-card">
+          <div class="section-header"><div class="section-header-left"><div class="section-accent"></div><div><div class="section-title">Ritmo del levantamiento</div><div class="section-sub">Registros nuevos vs validados por semana</div></div></div></div>
+          <div style="padding:16px 20px 20px;height:240px;position:relative;"><canvas id="lineRegistros"></canvas></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+<script type="module" src="../../assets/js/dashboard-administrador.js"></script>
+</body>
+</html>

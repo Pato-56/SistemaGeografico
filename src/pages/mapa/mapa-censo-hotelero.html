@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mapa Hotelero — Acapulco</title>
+  <link rel="stylesheet" href="../../assets/styles/variables.css"/>
+  <link rel="stylesheet" href="../../assets/styles/global.css"/>
+  <link rel="stylesheet" href="../../assets/styles/components.css"/>
+  <link rel="stylesheet" href="../../assets/styles/pages-standalone.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+  <style>
+    /* Mapa específico */
+    body { height: 100vh; overflow: hidden; display: flex; flex-direction: column; background: var(--azul-oscuro); }
+    #map { flex: 1; width: 100%; z-index: 1; }
+    /* Panel detalle hotel (flotante derecha) */
+    .detail-panel { position:absolute; top:80px; right:20px; width:300px; background:white; border-radius:16px; box-shadow:var(--shadow-lg),0 0 0 1px rgba(192,57,43,0.15); z-index:500; overflow:hidden; display:none; animation:slideRight 0.35s cubic-bezier(.22,.97,.44,1) both; }
+    .detail-panel.visible { display:block; }
+    .detail-header { background:linear-gradient(135deg,var(--azul-oscuro),var(--azul-medio)); padding:16px 18px; border-bottom:2px solid var(--rojo); position:relative; }
+    .detail-header h3 { font-family:var(--font-serif); font-size:16px; font-weight:700; color:white; line-height:1.3; padding-right:24px; position:relative; z-index:1; }
+    .detail-close { position:absolute; top:14px; right:14px; background:rgba(255,255,255,0.15); border:none; border-radius:50%; width:26px; height:26px; color:white; cursor:pointer; font-size:14px; display:flex; align-items:center; justify-content:center; transition:background 0.2s; }
+    .detail-close:hover { background:var(--rojo); }
+    .detail-body { padding:18px; display:flex; flex-direction:column; gap:12px; }
+    .estado-badge { display:inline-flex; align-items:center; gap:6px; border-radius:var(--radius-full); padding:5px 12px; font-size:12px; font-weight:600; width:fit-content; }
+    .estado-badge.abierto { background:rgba(39,174,96,0.12); color:var(--verde); border:1px solid rgba(39,174,96,0.3); }
+    .estado-badge.parcial  { background:rgba(243,156,18,0.12); color:var(--amarillo); border:1px solid rgba(243,156,18,0.3); }
+    .estado-badge.cerrado  { background:rgba(192,57,43,0.1); color:var(--rojo); border:1px solid rgba(192,57,43,0.25); }
+    .detail-row { display:flex; flex-direction:column; gap:3px; }
+    .detail-row .lbl { font-size:10px; font-weight:600; color:var(--azul-medio); letter-spacing:1.5px; text-transform:uppercase; }
+    .detail-row .val { font-size:14px; color:var(--texto-oscuro); line-height:1.4; }
+    .detail-divider { height:1px; background:linear-gradient(90deg,transparent,var(--rojo),var(--azul-claro),transparent); opacity:0.2; }
+    .detail-stats { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .stat-box { background:var(--gris-suave); border-radius:10px; padding:10px 12px; border:1px solid var(--gris-borde); text-align:center; }
+    .stat-box .stat-val { font-size:22px; font-weight:700; color:var(--azul-oscuro); line-height:1; }
+    .stat-box .stat-lbl { font-size:10px; color:#7a8aaa; letter-spacing:1px; text-transform:uppercase; margin-top:4px; }
+    .filter-toggle { background:none; border:none; color:rgba(255,255,255,0.6); cursor:pointer; font-size:16px; transition:color 0.2s; }
+    .filter-toggle:hover { color:var(--rojo-suave); }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <div class="escudo escudo--sm">UAG</div>
+      <div class="brand-text"><h1 style="font-size:15px;">Censo Hotelero · Acapulco</h1><p class="brand-sub">Escuela de Turismo — UAGro</p></div>
+    </div>
+        <div class="navbar-right">
+      <button onclick="navegar('dashboard')" title="Volver al dashboard"
+        style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:white;padding:7px 14px;border-radius:8px;font-family:var(--font-sans);font-size:12px;font-weight:600;cursor:pointer;">
+        ← Dashboard
+      </button>
+      <div style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:7px 14px;">
+        <div style="width:28px;height:28px;border-radius:50%;background:var(--rojo);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white;" id="navInicial">—</div>
+        <div>
+          <div style="font-size:12px;font-weight:600;color:white;line-height:1.2;" id="navUsuario">Cargando…</div>
+          <div style="font-size:10px;color:rgba(200,215,255,0.6);" id="navRol">—</div>
+        </div>
+      </div>
+      <button onclick="cerrarSesion()" title="Cerrar sesión"
+        style="background:rgba(192,57,43,0.2);border:1px solid rgba(192,57,43,0.4);color:var(--rojo-suave);padding:7px 12px;border-radius:8px;font-family:var(--font-sans);font-size:12px;cursor:pointer;">
+        🚪
+      </button>
+    </div>
+  </nav>
+
+  <div id="map"></div>
+
+  <!-- Panel filtros izquierda -->
+  <div class="filter-panel" id="filterPanel">
+    <div class="filter-header">
+      <span>🗂 Filtros</span>
+      <button class="filter-toggle" onclick="toggleFilters()">▲</button>
+    </div>
+    <div class="filter-body" id="filterBody">
+
+      <div class="filter-section">
+        <label class="filter-section-label"><span class="dot"></span>Búsqueda</label>
+        <div class="search-wrap">
+          <input class="field-input" type="text" placeholder="Nombre del hotel…" id="searchInput" oninput="applyFilters()" style="padding:9px 14px 9px 34px;background:var(--gris-suave);border-radius:8px;"/>
+          <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:12px;pointer-events:none;">🔍</span>
+        </div>
+      </div>
+
+      <div class="divider-gradient"></div>
+
+      <div class="filter-section">
+        <label class="filter-section-label"><span class="dot"></span>Estado Operativo</label>
+        <div class="chip-group">
+          <div class="chip active-red" data-estado="abierto" onclick="toggleChip(this,'estado')">🟢 Abierto</div>
+          <div class="chip active-red" data-estado="parcial" onclick="toggleChip(this,'estado')">🟡 Parcial</div>
+          <div class="chip active-red" data-estado="cerrado" onclick="toggleChip(this,'estado')">🔴 Cerrado</div>
+        </div>
+      </div>
+
+      <div class="divider-gradient"></div>
+
+      <div class="filter-section">
+        <label class="filter-section-label"><span class="dot"></span>Zona Turística</label>
+        <div class="chip-group">
+          <div id="zonaChips" style="display:flex;flex-wrap:wrap;gap:6px;">
+          <div class="chip active-blue" data-zona="Zona Dorada"     onclick="toggleChip(this,'zona')">Dorada</div>
+          <div class="chip active-blue" data-zona="Zona Diamante"   onclick="toggleChip(this,'zona')">Diamante</div>
+          <div class="chip active-blue" data-zona="Zona Tradicional"onclick="toggleChip(this,'zona')">Tradicional</div>
+          <div class="chip active-blue" data-zona="Otra"       onclick="toggleChip(this,'zona')">Otra</div>
+        </div>
+        </div>
+      </div>
+
+      <div class="divider-gradient"></div>
+
+      <div class="hotel-count">
+        <span>Hoteles encontrados</span>
+        <strong id="hotelCount">0</strong>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Panel detalle hotel -->
+  <div class="detail-panel" id="detailPanel">
+    <div class="detail-header">
+      <h3 id="detailNombre">—</h3>
+      <button class="detail-close" onclick="closeDetail()">✕</button>
+    </div>
+    <div class="detail-body">
+      <div id="detailEstado"></div>
+      <div class="detail-stats">
+        <div class="stat-box"><div class="stat-val" id="detailHabitaciones">—</div><div class="stat-lbl">Habitaciones</div></div>
+        <div class="stat-box"><div class="stat-val" id="detailPisos">—</div><div class="stat-lbl">Pisos</div></div>
+      </div>
+      <div class="detail-divider"></div>
+      <div class="detail-row"><span class="lbl">Dirección</span><span class="val" id="detailDireccion">—</span></div>
+      <div class="detail-row"><span class="lbl">Zona Turística</span><div id="detailZona"></div></div>
+      <div class="detail-divider"></div>
+      <div class="detail-row"><span class="lbl">Censador</span><span class="val" id="detailCensador">—</span></div>
+      <div class="detail-row"><span class="lbl">Última actualización</span><span class="val" id="detailFecha">—</span></div>
+    </div>
+  </div>
+
+  <!-- Leyenda -->
+  <div class="leyenda">
+    <div class="leyenda-title">Estado Operativo</div>
+    <div class="leyenda-items">
+      <div class="leyenda-item"><div class="dot-legend" style="background:#27ae60"></div> Abierto</div>
+      <div class="leyenda-item"><div class="dot-legend" style="background:#f39c12"></div> Parcial</div>
+      <div class="leyenda-item"><div class="dot-legend" style="background:#c0392b"></div> Cerrado</div>
+    </div>
+  </div>
+
+<script type="module" src="../../assets/js/mapa-censo-hotelero.js"></script>
+</body>
+</html>

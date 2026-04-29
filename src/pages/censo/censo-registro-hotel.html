@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Censo Hotelero — Registro</title>
+  <!-- Estilos externos -->
+  <link rel="stylesheet" href="../../assets/styles/variables.css"/>
+  <link rel="stylesheet" href="../../assets/styles/global.css"/>
+  <link rel="stylesheet" href="../../assets/styles/components.css"/>
+  <link rel="stylesheet" href="../../assets/styles/pages-standalone.css"/>
+  <!-- Leaflet -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+</head>
+<body class="bg-dark-page" style="display:flex;flex-direction:column;">
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <div class="escudo escudo--sm">UAG</div>
+      <div class="brand-text">
+        <h1 style="font-size:15px;">Censo Hotelero · Acapulco</h1>
+        <p class="brand-sub">Escuela de Turismo — UAGro</p>
+      </div>
+    </div>
+        <div class="navbar-right">
+      <button onclick="navegar('dashboard')" title="Volver al dashboard"
+        style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:white;padding:7px 14px;border-radius:8px;font-family:var(--font-sans);font-size:12px;font-weight:600;cursor:pointer;">
+        ← Dashboard
+      </button>
+      <div style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:7px 14px;">
+        <div style="width:28px;height:28px;border-radius:50%;background:var(--rojo);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white;" id="navInicial">—</div>
+        <div>
+          <div style="font-size:12px;font-weight:600;color:white;line-height:1.2;" id="navUsuario">Cargando…</div>
+          <div style="font-size:10px;color:rgba(200,215,255,0.6);" id="navRol">—</div>
+        </div>
+      </div>
+      <button onclick="cerrarSesion()" title="Cerrar sesión"
+        style="background:rgba(192,57,43,0.2);border:1px solid rgba(192,57,43,0.4);color:var(--rojo-suave);padding:7px 12px;border-radius:8px;font-family:var(--font-sans);font-size:12px;cursor:pointer;">
+        🚪
+      </button>
+    </div>
+  </nav>
+
+  <!-- CONTENIDO -->
+  <div class="page-content" style="flex:1;padding:28px 28px 40px;position:relative;z-index:1;overflow-y:auto;">
+
+    <!-- Título -->
+    <div class="page-title">
+      <div class="page-title-icon">🏨</div>
+      <div>
+        <h2>Registro de Hotel</h2>
+        <p>Pantalla Censo Hotelero · Complete todos los campos obligatorios</p>
+      </div>
+    </div>
+
+    <!-- Card principal -->
+    <div style="background:white;border-radius:20px;overflow:hidden;box-shadow:0 30px 70px rgba(0,0,0,0.3),0 0 0 1px rgba(192,57,43,0.15);animation:cardIn 0.6s cubic-bezier(.22,.97,.44,1) both;animation-delay:0.1s;">
+
+      <!-- Header card -->
+      <div class="card-header-gradient" style="padding:22px 32px;display:flex;align-items:center;justify-content:space-between;">
+        <div style="position:relative;z-index:1;">
+          <h3 style="font-family:var(--font-serif);font-size:18px;font-weight:700;color:white;">Nuevo Registro Hotelero</h3>
+          <p style="font-size:12px;color:rgba(200,215,255,0.6);margin-top:4px;">Levantamiento de información en campo — Acapulco de Juárez</p>
+        </div>
+        <div class="required-note" style="position:relative;z-index:1;">✱ Campo obligatorio</div>
+      </div>
+
+      <!-- Body -->
+      <div class="registro-body">
+
+        <!-- ══ COLUMNA IZQUIERDA ══ -->
+        <div style="display:flex;flex-direction:column;gap:0;">
+
+          <!-- Sección: Datos Generales -->
+          <section style="margin-bottom:28px;">
+            <div class="section-title-form">Datos Generales del Hotel</div>
+            <div class="fields-grid">
+              <div class="field field-full">
+                <label class="field-label"><span class="dot"></span>Nombre del Hotel <span class="req">✱</span></label>
+                <input class="field-input" type="text" placeholder="Ej. Hotel Emporio Acapulco"/>
+              </div>
+              <div class="field field-full">
+                <label class="field-label"><span class="dot"></span>Razón Social <span class="req">✱</span></label>
+                <input class="field-input" type="text" placeholder="Ej. Hoteles Emporio S.A. de C.V."/>
+              </div>
+              <div class="field">
+                <label class="field-label"><span class="dot"></span>Teléfono <span class="req">✱</span></label>
+                <input class="field-input" type="tel" placeholder="+52 744 000 0000"/>
+              </div>
+              <div class="field">
+                <label class="field-label"><span class="dot"></span>Encargado <span class="req">✱</span></label>
+                <input class="field-input" type="text" placeholder="Nombre del responsable"/>
+              </div>
+            </div>
+          </section>
+
+          <!-- Sección: Capacidad y Zona -->
+          <section style="margin-bottom:28px;">
+            <div class="section-title-form">Capacidad y Zona Turística</div>
+            <div class="fields-grid triple">
+              <div class="field">
+                <label class="field-label"><span class="dot"></span>Habitaciones <span class="req">✱</span></label>
+                <input class="field-input" type="number" placeholder="Ej. 200" min="1"/>
+              </div>
+              <div class="field">
+                <label class="field-label"><span class="dot"></span>Pisos</label>
+                <input class="field-input" type="number" placeholder="Ej. 12" min="1"/>
+              </div>
+              <div class="field">
+                <label class="field-label"><span class="dot"></span>Zona Turística <span class="req">✱</span></label>
+                <div class="select-wrap">
+                  <select class="field-select">
+                    <option value="" disabled selected>Seleccionar…</option>
+                    <option>Zona Dorada</option>
+                    <option>Zona Diamante</option>
+                    <option>Zona Tradicional</option>
+                    <option>Otra</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Sección: Estado Operativo -->
+          <section style="margin-bottom:28px;">
+            <div class="section-title-form">Estado Operativo <span style="color:var(--rojo);font-size:13px;">✱</span></div>
+            <div class="estado-chips">
+              <div class="estado-chip selected-abierto" onclick="selectEstado(this,'abierto')">
+                <span class="chip-icon">🟢</span>En Operación
+              </div>
+              <div class="estado-chip" onclick="selectEstado(this,'parcial')">
+                <span class="chip-icon">🟡</span>Operación Parcial
+              </div>
+              <div class="estado-chip" onclick="selectEstado(this,'cerrado')">
+                <span class="chip-icon">🔴</span>Cerrado
+              </div>
+            </div>
+          </section>
+
+          <!-- Sección: Levantamiento -->
+          <section style="margin-bottom:28px;">
+            <div class="section-title-form">Datos del Levantamiento</div>
+            <div class="fields-grid">
+              <div class="field">
+                <label class="field-label"><span class="dot"></span>Nombre del Censador <span class="req">✱</span></label>
+                <input class="field-input" type="text" placeholder="Nombre completo" value="Alexis Álvarez Herrera"/>
+              </div>
+              <div class="field">
+                <label class="field-label"><span class="dot"></span>Fecha de Levantamiento <span class="req">✱</span></label>
+                <input class="field-input" type="date" id="fechaInput"/>
+              </div>
+              <div class="field field-full">
+                <label class="field-label"><span class="dot"></span>Notas u Observaciones</label>
+                <textarea class="field-textarea" placeholder="Descripción adicional del estado del hotel…"></textarea>
+              </div>
+            </div>
+          </section>
+
+        </div>
+
+        <!-- ══ COLUMNA DERECHA ══ -->
+        <div style="display:flex;flex-direction:column;gap:20px;">
+
+          <!-- Fotografía -->
+          <div>
+            <div class="field-label" style="margin-bottom:10px;"><span class="dot"></span>Fotografía del Hotel <span class="req" style="color:var(--rojo);font-size:13px;">✱</span></div>
+            <div class="upload-card" onclick="document.getElementById('fotoInput').click()">
+              <div class="upload-preview" id="uploadPreview">
+                <img id="previewImg" src="" alt=""/>
+                <div class="upload-placeholder" id="uploadPlaceholder">
+                  <div class="upload-icon">📷</div>
+                  <p>Subir fotografía</p>
+                  <span>JPG, PNG — Máx. 5 MB</span>
+                </div>
+              </div>
+              <div class="upload-btn">📎 Seleccionar archivo</div>
+              <input type="file" id="fotoInput" accept="image/*" onchange="previewFoto(event)"/>
+            </div>
+          </div>
+
+          <!-- Mini mapa -->
+          <div class="map-card">
+            <div class="map-card-header">
+              <span>Ubicación GPS</span>
+              <button class="map-locate-btn" onclick="locateMe()">📍 Mi ubicación</button>
+            </div>
+            <div id="minimap"></div>
+            <div class="map-coords">
+              <div class="coord-field">
+                <label class="field-label" style="font-size:9px;letter-spacing:1.5px;">Latitud ✱</label>
+                <input class="field-input" type="text" id="latInput" placeholder="16.8400" readonly style="padding:7px 10px;font-size:12px;border-radius:6px;"/>
+              </div>
+              <div class="coord-field">
+                <label class="field-label" style="font-size:9px;letter-spacing:1.5px;">Longitud ✱</label>
+                <input class="field-input" type="text" id="lngInput" placeholder="-99.8900" readonly style="padding:7px 10px;font-size:12px;border-radius:6px;"/>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Acciones -->
+      <div class="card-actions-standalone">
+        <button class="btn-secondary">Cancelar</button>
+        <button class="btn-primary">✓ Guardar Registro</button>
+      </div>
+
+    </div>
+  </div>
+
+<!-- JS externo -->
+<script type="module" src="../../assets/js/censo-registro-hotel.js"></script>
+</body>
+</html>

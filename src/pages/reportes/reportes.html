@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Reportes — Censo Hotelero</title>
+  <link rel="stylesheet" href="../../assets/styles/variables.css"/>
+  <link rel="stylesheet" href="../../assets/styles/global.css"/>
+  <link rel="stylesheet" href="../../assets/styles/components.css"/>
+  <link rel="stylesheet" href="../../assets/styles/pages-app.css"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+</head>
+<body class="bg-app-page">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="escudo escudo--sm">UAG</div>
+      <div style="display:flex;flex-direction:column;">
+        <span style="font-family:var(--font-serif);font-size:13px;font-weight:700;color:white;line-height:1.3;">Censo Hotelero</span>
+        <span style="font-size:10px;color:rgba(200,215,255,0.5);letter-spacing:1px;text-transform:uppercase;margin-top:2px;">Acapulco · UAGro</span>
+      </div>
+    </div>
+        <div class="sidebar-user" style="cursor:pointer;" onclick="navegar('perfil')" title="Ver mi perfil">
+      <div class="user-avatar">👤</div>
+      <div class="user-info">
+        <div class="name" id="sidebarNombre">Cargando…</div>
+        <div class="role" id="sidebarRol">Cargando…</div>
+      </div>
+    </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Principal</div>
+      <div class="nav-item"><span class="nav-icon">🏠</span> Dashboard</div>
+      <div class="nav-item"><span class="nav-icon">🗺</span> Mapa interactivo</div>
+      <div class="nav-section-label" style="margin-top:8px;">Gestión</div>
+      <div class="nav-item"><span class="nav-icon">📋</span> Validar registros</div>
+      <div class="nav-item"><span class="nav-icon">🏨</span> Lista de hoteles</div>
+      <div class="nav-section-label" style="margin-top:8px;">Análisis</div>
+      <div class="nav-item"><span class="nav-icon">📊</span> Estadísticas</div>
+      <div class="nav-item active"><span class="nav-icon">📄</span> Exportar reporte</div>
+      <div class="nav-section-label" style="margin-top:8px;">Cuenta</div>
+      <div class="nav-item"><span class="nav-icon">👤</span> Mi perfil</div>
+    </nav>
+    <div class="sidebar-bottom">
+            <button class="btn-logout" onclick="cerrarSesion()"><span class="nav-icon">🚪</span> Cerrar sesión</button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <h3>Exportar Reportes</h3>
+        <p>Genera y descarga reportes del Censo Hotelero en múltiples formatos</p>
+      </div>
+      <div class="topbar-right">
+        <div class="topbar-date" id="fechaHoy"></div>
+      </div>
+    </header>
+
+    <div class="content">
+
+      <div class="welcome-bar">
+        <div class="welcome-text">
+          <h2>Generador de Reportes 📄</h2>
+          <p>Configura los filtros, selecciona el tipo de reporte y exporta en formato Excel, PDF o CSV.</p>
+        </div>
+      </div>
+
+      <!-- Layout dos columnas -->
+      <div class="reports-layout">
+
+        <!-- COLUMNA IZQUIERDA: Configuración -->
+        <div style="display:flex;flex-direction:column;gap:16px;animation:cardIn 0.5s ease both;animation-delay:0.1s;">
+
+          <!-- Tipo de reporte -->
+          <div class="config-card">
+            <div class="config-header"><div class="config-accent"></div><span class="config-title">Tipo de reporte</span></div>
+            <div class="config-body">
+              <div style="display:flex;flex-direction:column;gap:8px;" id="reportTypes">
+                <div class="report-type-btn selected" onclick="selectReport(this,'general')">
+                  <div class="rt-icon general">📊</div>
+                  <div class="rt-text"><div class="rt-name">Reporte general</div><div class="rt-desc">Todos los hoteles del censo</div></div>
+                  <div class="rt-check">✓</div>
+                </div>
+                <div class="report-type-btn" onclick="selectReport(this,'zonas')">
+                  <div class="rt-icon zonas">📍</div>
+                  <div class="rt-text"><div class="rt-name">Por zona turística</div><div class="rt-desc">Agrupado por Dorada, Diamante, etc.</div></div>
+                  <div class="rt-check"></div>
+                </div>
+                <div class="report-type-btn" onclick="selectReport(this,'censadores')">
+                  <div class="rt-icon censadores">👤</div>
+                  <div class="rt-text"><div class="rt-name">Por censador</div><div class="rt-desc">Rendimiento por alumno</div></div>
+                  <div class="rt-check"></div>
+                </div>
+                <div class="report-type-btn" onclick="selectReport(this,'hoteles')">
+                  <div class="rt-icon hoteles">🏨</div>
+                  <div class="rt-text"><div class="rt-name">Solo hoteles validados</div><div class="rt-desc">Registros aprobados por investigador</div></div>
+                  <div class="rt-check"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Filtros -->
+          <div class="config-card">
+            <div class="config-header"><div class="config-accent"></div><span class="config-title">Filtros</span></div>
+            <div class="config-body">
+              <div class="filter-field">
+                <div class="filter-label"><span class="dot"></span>Zona turística</div>
+                <div class="select-wrap">
+                  <select class="filter-select" id="filtroZona" onchange="updatePreview()">
+                    <option value="todas">Todas las zonas</option>
+                    <option value="Dorada">Zona Dorada</option>
+                    <option value="Diamante">Zona Diamante</option>
+                    <option value="Tradicional">Zona Tradicional</option>
+                    <option value="Otra">Otra</option>
+                  </select>
+                </div>
+              </div>
+              <div class="filter-field">
+                <div class="filter-label"><span class="dot"></span>Estado operativo</div>
+                <div class="select-wrap">
+                  <select class="filter-select" id="filtroEstado" onchange="updatePreview()">
+                    <option value="todos">Todos los estados</option>
+                    <option value="abierto">En operación</option>
+                    <option value="parcial">Operación parcial</option>
+                    <option value="cerrado">Cerrado</option>
+                  </select>
+                </div>
+              </div>
+              <div class="filter-field">
+                <div class="filter-label"><span class="dot"></span>Rango de fechas</div>
+                <div class="date-range">
+                  <input type="date" class="filter-date" id="fechaDesde" value="2026-03-01" onchange="updatePreview()"/>
+                  <input type="date" class="filter-date" id="fechaHasta" value="2026-03-31" onchange="updatePreview()"/>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Campos a incluir -->
+          <div class="config-card">
+            <div class="config-header"><div class="config-accent"></div><span class="config-title">Campos a incluir</span></div>
+            <div class="config-body" style="padding-top:12px;padding-bottom:12px;">
+              <div class="fields-grid" style="display:flex;flex-direction:column;gap:6px;">
+                <label class="field-check"><input type="checkbox" checked onchange="updatePreview()"> <span>Nombre del hotel</span></label>
+                <label class="field-check"><input type="checkbox" checked onchange="updatePreview()"> <span>Razón social</span></label>
+                <label class="field-check"><input type="checkbox" checked onchange="updatePreview()"> <span>Zona turística</span></label>
+                <label class="field-check"><input type="checkbox" checked onchange="updatePreview()"> <span>Estado operativo</span></label>
+                <label class="field-check"><input type="checkbox" checked onchange="updatePreview()"> <span>Habitaciones</span></label>
+                <label class="field-check"><input type="checkbox"       onchange="updatePreview()"> <span>Coordenadas GPS</span></label>
+                <label class="field-check"><input type="checkbox" checked onchange="updatePreview()"> <span>Censador</span></label>
+                <label class="field-check"><input type="checkbox" checked onchange="updatePreview()"> <span>Fecha levantamiento</span></label>
+                <label class="field-check"><input type="checkbox"       onchange="updatePreview()"> <span>Teléfono</span></label>
+                <label class="field-check"><input type="checkbox"       onchange="updatePreview()"> <span>Encargado</span></label>
+                <label class="field-check"><input type="checkbox"       onchange="updatePreview()"> <span>Estado validación</span></label>
+                <label class="field-check"><input type="checkbox"       onchange="updatePreview()"> <span>Notas</span></label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Botones exportar -->
+          <div class="config-card">
+            <div class="config-header"><div class="config-accent"></div><span class="config-title">Exportar</span></div>
+            <div class="config-body">
+              <div class="export-progress" id="exportProgress">
+                <div class="progress-label">
+                  <span id="progressLabel">Generando archivo…</span>
+                  <span id="progressPct">0%</span>
+                </div>
+                <div class="progress-bar">
+                  <div class="progress-fill" id="progressFill" style="background:var(--verde);"></div>
+                </div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:8px;">
+                <button class="btn-export-main btn-excel" onclick="exportar('excel')">📊 Exportar a Excel (.xlsx)</button>
+                <button class="btn-export-main btn-pdf"   onclick="exportar('pdf')">📄 Exportar a PDF</button>
+                <button class="btn-export-main btn-csv"   onclick="exportar('csv')">📋 Exportar a CSV</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- COLUMNA DERECHA: Vista previa -->
+        <div style="display:flex;flex-direction:column;gap:16px;animation:cardIn 0.5s ease both;animation-delay:0.2s;">
+
+          <!-- Vista previa del reporte -->
+          <div style="background:white;border-radius:16px;box-shadow:0 2px 16px rgba(0,0,0,0.07);border:1px solid var(--gris-borde);overflow:hidden;">
+            <div class="card-header-gradient" style="padding:16px 22px;display:flex;align-items:center;justify-content:space-between;">
+              <div style="position:relative;z-index:1;">
+                <h4 style="font-family:var(--font-serif);font-size:16px;font-weight:700;color:white;" id="previewTitle">Reporte General del Censo Hotelero</h4>
+                <p style="font-size:11px;color:rgba(200,215,255,0.6);margin-top:3px;">Escuela de Turismo · UAGro · Acapulco de Juárez, Gro.</p>
+              </div>
+              <div style="position:relative;z-index:1;display:flex;gap:8px;flex-wrap:wrap;">
+                <div style="font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.85);" id="previewDate"></div>
+                <div style="font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.85);" id="previewCount"></div>
+              </div>
+            </div>
+
+            <!-- KPIs del reporte -->
+            <div class="report-kpis" id="reportKpis"></div>
+
+            <!-- Tabla preview -->
+            <div style="overflow-x:auto;">
+              <table style="width:100%;border-collapse:collapse;">
+                <thead><tr id="tableHead" style="background:var(--gris-suave);"></tr></thead>
+                <tbody id="tableBody"></tbody>
+              </table>
+            </div>
+
+            <div style="padding:12px 20px;background:var(--gris-suave);border-top:1px solid var(--gris-borde);display:flex;align-items:center;justify-content:space-between;">
+              <span style="font-size:11px;color:#7a8aaa;" id="previewFooter">Vista previa — primeros 8 registros</span>
+              <span style="font-size:11px;color:var(--azul-medio);font-weight:600;">Censo Hotelero Acapulco 2026 · UAGro</span>
+            </div>
+          </div>
+
+          <!-- Historial de exportaciones -->
+          <div style="background:white;border-radius:16px;box-shadow:0 2px 16px rgba(0,0,0,0.07);border:1px solid var(--gris-borde);overflow:hidden;">
+            <div style="padding:16px 22px 12px;border-bottom:1px solid var(--gris-borde);display:flex;align-items:center;gap:10px;">
+              <div style="width:3px;height:16px;border-radius:2px;background:var(--rojo);"></div>
+              <span style="font-size:13px;font-weight:700;color:var(--azul-oscuro);">Historial de exportaciones</span>
+            </div>
+            <div id="historial"></div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast">
+    <span id="toastIcon">✅</span>
+    <span id="toastMsg">Reporte exportado correctamente</span>
+  </div>
+
+<script type="module" src="../../assets/js/reportes.js"></script>
+</body>
+</html>

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Validar Registros — Censo Hotelero</title>
+  <link rel="stylesheet" href="../../assets/styles/variables.css"/>
+  <link rel="stylesheet" href="../../assets/styles/global.css"/>
+  <link rel="stylesheet" href="../../assets/styles/components.css"/>
+  <link rel="stylesheet" href="../../assets/styles/pages-app.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+  <!-- Estilos específicos del panel de detalle de validación -->
+  <style>
+    .detail-card {
+      background: white; border-radius: var(--radius-lg);
+      box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+      border: 1px solid var(--gris-borde); overflow: hidden;
+    }
+    .detail-header {
+      background: linear-gradient(135deg, var(--azul-oscuro), var(--azul-medio));
+      padding: 20px 24px; position: relative; overflow: hidden;
+    }
+    .detail-header::before { content:''; position:absolute; inset:0; background-image:repeating-linear-gradient(45deg,rgba(255,255,255,0.025) 0px,rgba(255,255,255,0.025) 1px,transparent 1px,transparent 20px); }
+    .detail-header::after  { content:''; position:absolute; bottom:0; left:0; right:0; height:3px; background:linear-gradient(90deg,transparent,var(--rojo),var(--rojo-claro),var(--rojo),transparent); }
+    .dh-inner  { position:relative; z-index:1; display:flex; align-items:flex-start; justify-content:space-between; gap:16px; }
+    .dh-info h3 { font-family:var(--font-serif); font-size:20px; font-weight:700; color:white; line-height:1.3; }
+    .dh-info p  { font-size:12px; color:rgba(200,215,255,0.65); margin-top:4px; }
+    .dh-badges  { display:flex; gap:8px; margin-top:10px; flex-wrap:wrap; position:relative; z-index:1; }
+    .dh-badge   { display:inline-flex; align-items:center; gap:5px; border-radius:var(--radius-full); padding:5px 13px; font-size:11px; font-weight:600; }
+    .dh-badge.abierto { background:rgba(39,174,96,0.2); color:#6ee09a; border:1px solid rgba(39,174,96,0.35); }
+    .dh-badge.parcial  { background:rgba(243,156,18,0.2); color:#fad47b; border:1px solid rgba(243,156,18,0.35); }
+    .dh-badge.cerrado  { background:rgba(192,57,43,0.2); color:var(--rojo-suave); border:1px solid rgba(192,57,43,0.35); }
+    .dh-badge.zona     { background:rgba(255,255,255,0.1); color:rgba(200,215,255,0.9); border:1px solid rgba(255,255,255,0.2); }
+    .detail-stats { display:grid; grid-template-columns:repeat(3,1fr); border-bottom:1px solid var(--gris-borde); }
+    .ds-item { padding:14px 18px; text-align:center; border-right:1px solid var(--gris-borde); }
+    .ds-item:last-child { border-right:none; }
+    .ds-val { font-size:22px; font-weight:700; color:var(--azul-oscuro); line-height:1; }
+    .ds-lbl { font-size:10px; color:#7a8aaa; text-transform:uppercase; letter-spacing:1px; margin-top:3px; }
+    .detail-section { padding:18px 24px; border-bottom:1px solid var(--gris-borde); }
+    .detail-section:last-child { border-bottom:none; }
+    .ds-title { font-size:10px; font-weight:700; color:var(--azul-medio); letter-spacing:2.5px; text-transform:uppercase; display:flex; align-items:center; gap:8px; margin-bottom:14px; }
+    .ds-title::before { content:''; width:3px; height:13px; background:var(--rojo); border-radius:2px; }
+    .ds-grid  { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+    .ds-field { display:flex; flex-direction:column; gap:4px; }
+    .ds-field.full { grid-column:1/-1; }
+    .ds-label { font-size:10px; font-weight:600; color:var(--azul-medio); letter-spacing:1.5px; text-transform:uppercase; }
+    .ds-value { font-size:14px; color:var(--texto-oscuro); line-height:1.4; }
+    #detalleMap { width:100%; height:200px; }
+    .map-coords { display:grid; grid-template-columns:1fr 1fr; gap:8px; padding:10px 24px; background:white; border-bottom:1px solid var(--gris-borde); }
+    .coord-box { background:var(--gris-suave); border:1px solid var(--gris-borde); border-radius:7px; padding:8px 12px; }
+    .coord-box .cl { font-size:9px; font-weight:700; color:var(--azul-medio); letter-spacing:1.5px; text-transform:uppercase; }
+    .coord-box .cv { font-size:13px; font-weight:600; color:var(--texto-oscuro); margin-top:2px; }
+    .val-textarea { width:100%; padding:12px 14px; border:1.5px solid var(--gris-borde); border-radius:10px; font-family:var(--font-sans); font-size:13px; color:var(--texto-oscuro); background:var(--gris-suave); resize:vertical; min-height:90px; outline:none; transition:border-color 0.2s, box-shadow 0.2s; }
+    .val-textarea:focus { border-color:var(--rojo); background:white; box-shadow:0 0 0 3px rgba(192,57,43,0.08); }
+    .val-textarea::placeholder { color:#9baabe; font-size:12px; }
+  </style>
+</head>
+<body class="bg-app-page">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="escudo escudo--sm">UAG</div>
+      <div style="display:flex;flex-direction:column;">
+        <span style="font-family:var(--font-serif);font-size:13px;font-weight:700;color:white;line-height:1.3;">Censo Hotelero</span>
+        <span style="font-size:10px;color:rgba(200,215,255,0.5);letter-spacing:1px;text-transform:uppercase;margin-top:2px;">Acapulco · UAGro</span>
+      </div>
+    </div>
+        <div class="sidebar-user" style="cursor:pointer;" onclick="navegar('perfil')" title="Ver mi perfil">
+      <div class="user-avatar">👤</div>
+      <div class="user-info">
+        <div class="name" id="sidebarNombre">Cargando…</div>
+        <div class="role" id="sidebarRol">Cargando…</div>
+      </div>
+    </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Principal</div>
+      <div class="nav-item"><span class="nav-icon">🏠</span> Dashboard</div>
+      <div class="nav-item"><span class="nav-icon">🗺</span> Mapa interactivo</div>
+      <div class="nav-section-label" style="margin-top:8px;">Gestión</div>
+      <div class="nav-item active">
+        <span class="nav-icon">📋</span> Validar registros
+        <span class="nav-item-badge" id="sidebarBadge">7</span>
+      </div>
+      <div class="nav-item"><span class="nav-icon">🏨</span> Lista de hoteles</div>
+      <div class="nav-section-label" style="margin-top:8px;">Análisis</div>
+      <div class="nav-item"><span class="nav-icon">📊</span> Estadísticas</div>
+      <div class="nav-item"><span class="nav-icon">📄</span> Exportar reporte</div>
+      <div class="nav-section-label" style="margin-top:8px;">Cuenta</div>
+      <div class="nav-item"><span class="nav-icon">👤</span> Mi perfil</div>
+    </nav>
+    <div class="sidebar-bottom">
+            <button class="btn-logout" onclick="cerrarSesion()"><span class="nav-icon">🚪</span> Cerrar sesión</button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <h3>Validar Registros</h3>
+        <p>Revisión y aprobación de hoteles levantados por los censadores</p>
+      </div>
+      <div class="topbar-date" id="fechaHoy"></div>
+    </header>
+
+    <div class="content">
+
+      <!-- Welcome con stats -->
+      <div class="welcome-bar" style="padding:20px 28px;">
+        <div class="welcome-text">
+          <h2>Bandeja de Validación 🔬</h2>
+          <p>Revisa cada registro, verifica los datos y aprueba o rechaza con comentario.</p>
+        </div>
+        <div class="welcome-stats">
+          <div class="w-stat"><div class="ws-val" id="wPendientes">0</div><div class="ws-lbl">Pendientes</div></div>
+          <div class="w-stat"><div class="ws-val" id="wValidados">0</div><div class="ws-lbl">Validados</div></div>
+          <div class="w-stat"><div class="ws-val" id="wRechazados">0</div><div class="ws-lbl">Rechazados</div></div>
+        </div>
+      </div>
+
+      <!-- Layout maestro-detalle -->
+      <div class="master-detail">
+
+        <!-- LISTA -->
+        <div class="list-panel">
+          <div class="list-header">
+            <div class="list-header-top">
+              <div class="list-title">Registros <span class="list-count" id="listCount">0</span></div>
+            </div>
+            <div class="list-search">
+              <input type="text" id="listSearch" placeholder="Buscar hotel…" oninput="renderLista()"/>
+            </div>
+            <div class="list-filters">
+              <button class="lf-chip a-todos" data-f="todos"     onclick="setListFiltro(this)">Todos</button>
+              <button class="lf-chip"         data-f="pendiente" onclick="setListFiltro(this)">⏳ Pendientes</button>
+              <button class="lf-chip"         data-f="validado"  onclick="setListFiltro(this)">✅ Validados</button>
+              <button class="lf-chip"         data-f="rechazado" onclick="setListFiltro(this)">❌ Rechazados</button>
+            </div>
+          </div>
+          <div class="list-items" id="listItems"></div>
+          <div class="nav-progress">
+            <span class="np-info" id="npInfo"></span>
+            <div class="np-btns">
+              <button class="np-btn" id="btnAnterior"  onclick="navAnterior()">← Anterior</button>
+              <button class="np-btn" id="btnSiguiente" onclick="navSiguiente()">Siguiente →</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- DETALLE -->
+        <div style="display:flex;flex-direction:column;gap:16px;animation:slideRight 0.4s ease both;" id="detailPanel">
+          <div class="detail-empty" id="emptyState">
+            <div class="de-icon">📋</div>
+            <p>Selecciona un registro de la lista<br>para revisar sus datos completos</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"><span id="toastMsg"></span></div>
+
+<script type="module" src="../../assets/js/validar-registro.js"></script>
+</body>
+</html>
