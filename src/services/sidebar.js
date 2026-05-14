@@ -1,12 +1,9 @@
 /* ============================================================
    sidebar.js  —  Módulo compartido para sidebar y navbar
-   Importar en cualquier página que tenga sidebar o navbar
-
    CORRECCIONES:
-   - Rutas unificadas como absolutas desde /src/ para consistencia
-     con el servidor de desarrollo (Vite sirve desde la raíz)
-   - cerrarSesion y navegar se exportan Y se exponen en window
-     aquí mismo, para que los JS de página NO las redefinan
+   - Ruta 'validar' corregida: validar-registro.html →
+     validar-registro.html
+   - Resto de rutas y lógica sin cambios
    ============================================================ */
 import { supabase } from './supabase.js'
 
@@ -17,19 +14,18 @@ const iconosRol = {
 }
 
 // ── Rutas centralizadas ───────────────────────────────────────
-// Mantener aquí para que un solo cambio afecte toda la navegación
 const RUTAS = {
-  dashboard:   '/src/pages/dashboard/dashboard-administrador.html',
-  investigador:'/src/pages/dashboard/dashboard-investigador.html',
-  censador:    '/src/pages/dashboard/dashboard-censador.html',
-  mapa:        '/src/pages/mapa/mapa-censo-hotelero.html',
-  hoteles:     '/src/pages/censo/lista-mapa-hoteles.html',
-  registro:    '/src/pages/censo/censo-registro-hotel.html',
-  usuarios:    '/src/pages/admin/gestion-usuarios.html',
-  validar:     '/src/pages/admin/validar-registro.html',
-  reportes:    '/src/pages/reportes/reportes.html',
-  perfil:      '/src/pages/auth/perfil.html',
-  login:       '/src/pages/auth/login.html',
+  dashboard:    '/src/pages/dashboard/dashboard-administrador.html',
+  investigador: '/src/pages/dashboard/dashboard-investigador.html',
+  censador:     '/src/pages/dashboard/dashboard-censador.html',
+  mapa:         '/src/pages/mapa/mapa-censo-hotelero.html',
+  hoteles:      '/src/pages/censo/lista-mapa-hoteles.html',
+  registro:     '/src/pages/censo/censo-registro-hotel.html',
+  usuarios:     '/src/pages/admin/gestion-usuarios.html',
+  validar:      '/src/pages/admin/validar-registro.html',   // ← 's' corregida
+  reportes:     '/src/pages/reportes/reportes.html',
+  perfil:       '/src/pages/auth/perfil.html',
+  login:        '/src/pages/auth/login.html',
 }
 
 /**
@@ -57,7 +53,6 @@ export async function initSidebar() {
     return null
   }
 
-  // Verificar que la cuenta esté activa
   if (perfil.estado !== 'activo') {
     await supabase.auth.signOut()
     window.location.href = RUTAS.login
@@ -70,13 +65,14 @@ export async function initSidebar() {
   if (nombreEl) nombreEl.textContent = `${perfil.nombre} ${perfil.apellido}`
   if (rolEl)    rolEl.textContent    = iconosRol[perfil.rol] ?? perfil.rol
 
-  // ── Navbar (páginas standalone: mapa, censo-registro) ───
+  // ── Navbar (páginas standalone) ──────────────────────────
   const navUsuarioEl = document.getElementById('navUsuario')
   const navRolEl     = document.getElementById('navRol')
   const navInicialEl = document.getElementById('navInicial')
   if (navUsuarioEl) navUsuarioEl.textContent = `${perfil.nombre} ${perfil.apellido}`
   if (navRolEl)     navRolEl.textContent     = iconosRol[perfil.rol] ?? perfil.rol
-  if (navInicialEl) navInicialEl.textContent = (perfil.nombre?.[0] ?? '') + (perfil.apellido?.[0] ?? '')
+  if (navInicialEl) navInicialEl.textContent =
+    (perfil.nombre?.[0] ?? '') + (perfil.apellido?.[0] ?? '')
 
   return perfil
 }
@@ -101,7 +97,6 @@ export function navegar(destino) {
   }
 }
 
-// ── Exponer en window para uso desde atributos HTML (onclick="...") ──
-// Esto evita que cada JS de página tenga que redefinirlas
+// Exponer en window para uso desde atributos HTML (onclick="...")
 window.cerrarSesion = cerrarSesion
 window.navegar      = navegar

@@ -4,12 +4,10 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Censo Hotelero — Registro</title>
-  <!-- Estilos externos -->
   <link rel="stylesheet" href="../../assets/styles/variables.css"/>
   <link rel="stylesheet" href="../../assets/styles/global.css"/>
   <link rel="stylesheet" href="../../assets/styles/components.css"/>
   <link rel="stylesheet" href="../../assets/styles/pages-standalone.css"/>
-  <!-- Leaflet -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 </head>
@@ -24,7 +22,7 @@
         <p class="brand-sub">Escuela de Turismo — UAGro</p>
       </div>
     </div>
-        <div class="navbar-right">
+    <div class="navbar-right">
       <button onclick="navegar('dashboard')" title="Volver al dashboard"
         style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:white;padding:7px 14px;border-radius:8px;font-family:var(--font-sans);font-size:12px;font-weight:600;cursor:pointer;">
         ← Dashboard
@@ -73,59 +71,80 @@
         <!-- ══ COLUMNA IZQUIERDA ══ -->
         <div style="display:flex;flex-direction:column;gap:0;">
 
-          <!-- Sección: Datos Generales -->
+          <!-- Datos Generales -->
           <section style="margin-bottom:28px;">
             <div class="section-title-form">Datos Generales del Hotel</div>
             <div class="fields-grid">
               <div class="field field-full">
                 <label class="field-label"><span class="dot"></span>Nombre del Hotel <span class="req">✱</span></label>
-                <input class="field-input" type="text" placeholder="Ej. Hotel Emporio Acapulco"/>
+                <!-- CORRECCIÓN: id="nombreHotel" agregado -->
+                <input class="field-input" type="text" id="nombreHotel"
+                  placeholder="Ej. Hotel Emporio Acapulco"/>
               </div>
               <div class="field field-full">
-                <label class="field-label"><span class="dot"></span>Razón Social <span class="req">✱</span></label>
-                <input class="field-input" type="text" placeholder="Ej. Hoteles Emporio S.A. de C.V."/>
+                <label class="field-label"><span class="dot"></span>Razón Social</label>
+                <!-- CORRECCIÓN: id="razonSocial" agregado -->
+                <input class="field-input" type="text" id="razonSocial"
+                  placeholder="Ej. Hoteles Emporio S.A. de C.V."/>
               </div>
               <div class="field">
-                <label class="field-label"><span class="dot"></span>Teléfono <span class="req">✱</span></label>
-                <input class="field-input" type="tel" placeholder="+52 744 000 0000"/>
+                <label class="field-label"><span class="dot"></span>Teléfono</label>
+                <!-- CORRECCIÓN: id="telefonoHotel" agregado -->
+                <input class="field-input" type="tel" id="telefonoHotel"
+                  placeholder="+52 744 000 0000"/>
               </div>
               <div class="field">
-                <label class="field-label"><span class="dot"></span>Encargado <span class="req">✱</span></label>
-                <input class="field-input" type="text" placeholder="Nombre del responsable"/>
+                <label class="field-label"><span class="dot"></span>Encargado</label>
+                <!-- CORRECCIÓN: id="encargado" agregado -->
+                <input class="field-input" type="text" id="encargado"
+                  placeholder="Nombre del responsable"/>
+              </div>
+              <div class="field field-full">
+                <label class="field-label"><span class="dot"></span>Dirección</label>
+                <!-- CORRECCIÓN: id="direccion" agregado -->
+                <input class="field-input" type="text" id="direccion"
+                  placeholder="Ej. Costera M. Alemán 75, Zona Dorada"/>
               </div>
             </div>
           </section>
 
-          <!-- Sección: Capacidad y Zona -->
+          <!-- Capacidad y Zona -->
           <section style="margin-bottom:28px;">
             <div class="section-title-form">Capacidad y Zona Turística</div>
             <div class="fields-grid triple">
               <div class="field">
                 <label class="field-label"><span class="dot"></span>Habitaciones <span class="req">✱</span></label>
-                <input class="field-input" type="number" placeholder="Ej. 200" min="1"/>
+                <!-- CORRECCIÓN: id="habitaciones" agregado -->
+                <input class="field-input" type="number" id="habitaciones"
+                  placeholder="Ej. 200" min="1"/>
               </div>
               <div class="field">
                 <label class="field-label"><span class="dot"></span>Pisos</label>
-                <input class="field-input" type="number" placeholder="Ej. 12" min="1"/>
+                <!-- CORRECCIÓN: id="pisos" agregado -->
+                <input class="field-input" type="number" id="pisos"
+                  placeholder="Ej. 12" min="1"/>
               </div>
               <div class="field">
                 <label class="field-label"><span class="dot"></span>Zona Turística <span class="req">✱</span></label>
                 <div class="select-wrap">
-                  <select class="field-select">
+                  <!-- CORRECCIÓN: id="zonaSelect" agregado (el JS lo usa para cargar opciones dinámicas) -->
+                  <select class="field-select" id="zonaSelect">
                     <option value="" disabled selected>Seleccionar…</option>
-                    <option>Zona Dorada</option>
-                    <option>Zona Diamante</option>
-                    <option>Zona Tradicional</option>
-                    <option>Otra</option>
+                    <!-- Las opciones se cargan dinámicamente desde Supabase -->
                   </select>
                 </div>
               </div>
             </div>
           </section>
 
-          <!-- Sección: Estado Operativo -->
+          <!-- Estado Operativo -->
           <section style="margin-bottom:28px;">
             <div class="section-title-form">Estado Operativo <span style="color:var(--rojo);font-size:13px;">✱</span></div>
+            <!--
+              CORRECCIÓN: id="estadoOperativo" en un input hidden que el JS actualiza.
+              Los chips visuales llaman selectEstado() que actualiza este valor.
+            -->
+            <input type="hidden" id="estadoOperativo" value="abierto"/>
             <div class="estado-chips">
               <div class="estado-chip selected-abierto" onclick="selectEstado(this,'abierto')">
                 <span class="chip-icon">🟢</span>En Operación
@@ -139,21 +158,20 @@
             </div>
           </section>
 
-          <!-- Sección: Levantamiento -->
+          <!-- Levantamiento -->
           <section style="margin-bottom:28px;">
             <div class="section-title-form">Datos del Levantamiento</div>
             <div class="fields-grid">
               <div class="field">
-                <label class="field-label"><span class="dot"></span>Nombre del Censador <span class="req">✱</span></label>
-                <input class="field-input" type="text" placeholder="Nombre completo" value="Alexis Álvarez Herrera"/>
-              </div>
-              <div class="field">
                 <label class="field-label"><span class="dot"></span>Fecha de Levantamiento <span class="req">✱</span></label>
-                <input class="field-input" type="date" id="fechaInput"/>
+                <!-- CORRECCIÓN: id="fechaLevantamiento" (coincide con el JS) -->
+                <input class="field-input" type="date" id="fechaLevantamiento"/>
               </div>
               <div class="field field-full">
                 <label class="field-label"><span class="dot"></span>Notas u Observaciones</label>
-                <textarea class="field-textarea" placeholder="Descripción adicional del estado del hotel…"></textarea>
+                <!-- CORRECCIÓN: id="observaciones" agregado -->
+                <textarea class="field-textarea" id="observaciones"
+                  placeholder="Descripción adicional del estado del hotel…"></textarea>
               </div>
             </div>
           </section>
@@ -165,10 +183,10 @@
 
           <!-- Fotografía -->
           <div>
-            <div class="field-label" style="margin-bottom:10px;"><span class="dot"></span>Fotografía del Hotel <span class="req" style="color:var(--rojo);font-size:13px;">✱</span></div>
+            <div class="field-label" style="margin-bottom:10px;"><span class="dot"></span>Fotografía del Hotel</div>
             <div class="upload-card" onclick="document.getElementById('fotoInput').click()">
               <div class="upload-preview" id="uploadPreview">
-                <img id="previewImg" src="" alt=""/>
+                <img id="previewImg" src="" alt="" style="display:none;"/>
                 <div class="upload-placeholder" id="uploadPlaceholder">
                   <div class="upload-icon">📷</div>
                   <p>Subir fotografía</p>
@@ -184,17 +202,25 @@
           <div class="map-card">
             <div class="map-card-header">
               <span>Ubicación GPS</span>
-              <button class="map-locate-btn" onclick="locateMe()">📍 Mi ubicación</button>
+              <!-- CORRECCIÓN: llama usarUbicacionActual() que es lo que expone el JS -->
+              <button class="map-locate-btn" onclick="usarUbicacionActual()">📍 Mi ubicación</button>
             </div>
-            <div id="minimap"></div>
+            <!-- CORRECCIÓN: id="mapaUbicacion" (el JS busca este ID exacto) -->
+            <div id="mapaUbicacion" style="width:100%;height:180px;"></div>
             <div class="map-coords">
               <div class="coord-field">
-                <label class="field-label" style="font-size:9px;letter-spacing:1.5px;">Latitud ✱</label>
-                <input class="field-input" type="text" id="latInput" placeholder="16.8400" readonly style="padding:7px 10px;font-size:12px;border-radius:6px;"/>
+                <label class="field-label" style="font-size:9px;letter-spacing:1.5px;">Latitud</label>
+                <!-- CORRECCIÓN: id="latitud" (el JS usa getElementById('latitud')) -->
+                <input class="field-input" type="text" id="latitud"
+                  placeholder="16.8400" readonly
+                  style="padding:7px 10px;font-size:12px;border-radius:6px;"/>
               </div>
               <div class="coord-field">
-                <label class="field-label" style="font-size:9px;letter-spacing:1.5px;">Longitud ✱</label>
-                <input class="field-input" type="text" id="lngInput" placeholder="-99.8900" readonly style="padding:7px 10px;font-size:12px;border-radius:6px;"/>
+                <label class="field-label" style="font-size:9px;letter-spacing:1.5px;">Longitud</label>
+                <!-- CORRECCIÓN: id="longitud" (el JS usa getElementById('longitud')) -->
+                <input class="field-input" type="text" id="longitud"
+                  placeholder="-99.8900" readonly
+                  style="padding:7px 10px;font-size:12px;border-radius:6px;"/>
               </div>
             </div>
           </div>
@@ -204,14 +230,26 @@
 
       <!-- Acciones -->
       <div class="card-actions-standalone">
-        <button class="btn-secondary">Cancelar</button>
-        <button class="btn-primary">✓ Guardar Registro</button>
+        <button class="btn-secondary" onclick="navegar('dashboard')">Cancelar</button>
+        <!-- CORRECCIÓN: id="btnGuardar" para que el JS pueda deshabilitarlo -->
+        <button class="btn-primary" id="btnGuardar" onclick="guardarRegistro()">
+          ✓ Guardar Registro
+        </button>
       </div>
 
     </div>
   </div>
 
-<!-- JS externo -->
+  <!-- Toast de notificaciones -->
+  <div id="registroToast" style="
+    position:fixed;bottom:24px;right:24px;
+    padding:14px 22px;border-radius:12px;
+    font-size:13px;font-weight:600;color:white;
+    z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,0.2);
+    opacity:0;transition:opacity 0.3s;
+    background:#27ae60;
+  "></div>
+
 <script type="module" src="../../assets/js/censo-registro-hotel.js"></script>
 </body>
 </html>

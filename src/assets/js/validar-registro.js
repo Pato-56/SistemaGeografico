@@ -1,5 +1,5 @@
 /* ============================================================
-   validar-registros.js — Conectado a Supabase
+   validar-registro.js — Conectado a Supabase
    CORRECCIÓN: Eliminada redefinición local de cerrarSesion.
    sidebar.js ya la expone en window al importarse.
    ============================================================ */
