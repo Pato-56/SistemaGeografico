@@ -3,14 +3,13 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Validar Registro — Censo Hotelero</title>
+  <title>Validar Registros — Censo Hotelero</title>
   <link rel="stylesheet" href="../../assets/styles/variables.css"/>
   <link rel="stylesheet" href="../../assets/styles/global.css"/>
   <link rel="stylesheet" href="../../assets/styles/components.css"/>
   <link rel="stylesheet" href="../../assets/styles/pages-app.css"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-  <!-- Estilos específicos del panel de detalle de validación -->
   <style>
     .detail-card {
       background: white; border-radius: var(--radius-lg);
@@ -58,57 +57,21 @@
 </head>
 <body class="bg-app-page">
 
-  <!-- SIDEBAR -->
-  <aside class="sidebar">
-    <div class="sidebar-logo">
-      <div class="escudo escudo--sm">UAG</div>
-      <div style="display:flex;flex-direction:column;">
-        <span style="font-family:var(--font-serif);font-size:13px;font-weight:700;color:white;line-height:1.3;">Censo Hotelero</span>
-        <span style="font-size:10px;color:rgba(200,215,255,0.5);letter-spacing:1px;text-transform:uppercase;margin-top:2px;">Acapulco · UAGro</span>
-      </div>
-    </div>
-        <div class="sidebar-user" style="cursor:pointer;" onclick="navegar('perfil')" title="Ver mi perfil">
-      <div class="user-avatar">👤</div>
-      <div class="user-info">
-        <div class="name" id="sidebarNombre">Cargando…</div>
-        <div class="role" id="sidebarRol">Cargando…</div>
-      </div>
-    </div>
-    </div>
-    <nav class="sidebar-nav">
-      <div class="nav-section-label">Principal</div>
-      <div class="nav-item"><span class="nav-icon">🏠</span> Dashboard</div>
-      <div class="nav-item"><span class="nav-icon">🗺</span> Mapa interactivo</div>
-      <div class="nav-section-label" style="margin-top:8px;">Gestión</div>
-      <div class="nav-item active">
-        <span class="nav-icon">📋</span> Validar registros
-        <span class="nav-item-badge" id="sidebarBadge">7</span>
-      </div>
-      <div class="nav-item"><span class="nav-icon">🏨</span> Lista de hoteles</div>
-      <div class="nav-section-label" style="margin-top:8px;">Análisis</div>
-      <div class="nav-item"><span class="nav-icon">📊</span> Estadísticas</div>
-      <div class="nav-item"><span class="nav-icon">📄</span> Exportar reporte</div>
-      <div class="nav-section-label" style="margin-top:8px;">Cuenta</div>
-      <div class="nav-item"><span class="nav-icon">👤</span> Mi perfil</div>
-    </nav>
-    <div class="sidebar-bottom">
-            <button class="btn-logout" onclick="cerrarSesion()"><span class="nav-icon">🚪</span> Cerrar sesión</button>
-    </div>
-  </aside>
+  <aside class="sidebar" id="sidebar"></aside>
 
-  <!-- MAIN -->
   <div class="main">
     <header class="topbar">
       <div class="topbar-left">
         <h3>Validar Registros</h3>
         <p>Revisión y aprobación de hoteles levantados por los censadores</p>
       </div>
-      <div class="topbar-date" id="fechaHoy"></div>
+      <div class="topbar-right">
+        <div class="topbar-date" id="fechaHoy"></div>
+      </div>
     </header>
 
     <div class="content">
 
-      <!-- Welcome con stats -->
       <div class="welcome-bar" style="padding:20px 28px;">
         <div class="welcome-text">
           <h2>Bandeja de Validación 🔬</h2>
@@ -128,30 +91,40 @@
         <div class="list-panel">
           <div class="list-header">
             <div class="list-header-top">
-              <div class="list-title">Registros <span class="list-count" id="listCount">0</span></div>
+              <div class="list-title">
+                Registros <span class="list-count" id="listCount">0</span>
+              </div>
             </div>
             <div class="list-search">
-              <input type="text" id="listSearch" placeholder="Buscar hotel…" oninput="renderLista()"/>
+              <input type="text" id="listSearch" placeholder="Buscar hotel…"
+                     oninput="renderLista()"/>
             </div>
             <div class="list-filters">
-              <button class="lf-chip a-todos" data-f="todos"     onclick="setListFiltro(this)">Todos</button>
-              <button class="lf-chip"         data-f="pendiente" onclick="setListFiltro(this)">⏳ Pendientes</button>
-              <button class="lf-chip"         data-f="validado"  onclick="setListFiltro(this)">✅ Validados</button>
-              <button class="lf-chip"         data-f="rechazado" onclick="setListFiltro(this)">❌ Rechazados</button>
+              <button class="lf-chip a-todos" data-f="todos"
+                      onclick="setListFiltro(this)">Todos</button>
+              <button class="lf-chip" data-f="pendiente"
+                      onclick="setListFiltro(this)">⏳ Pendientes</button>
+              <button class="lf-chip" data-f="validado"
+                      onclick="setListFiltro(this)">✅ Validados</button>
+              <button class="lf-chip" data-f="rechazado"
+                      onclick="setListFiltro(this)">❌ Rechazados</button>
             </div>
           </div>
           <div class="list-items" id="listItems"></div>
           <div class="nav-progress">
             <span class="np-info" id="npInfo"></span>
             <div class="np-btns">
-              <button class="np-btn" id="btnAnterior"  onclick="navAnterior()">← Anterior</button>
-              <button class="np-btn" id="btnSiguiente" onclick="navSiguiente()">Siguiente →</button>
+              <button class="np-btn" id="btnAnterior"
+                      onclick="navAnterior()">← Anterior</button>
+              <button class="np-btn" id="btnSiguiente"
+                      onclick="navSiguiente()">Siguiente →</button>
             </div>
           </div>
         </div>
 
         <!-- DETALLE -->
-        <div style="display:flex;flex-direction:column;gap:16px;animation:slideRight 0.4s ease both;" id="detailPanel">
+        <div style="display:flex;flex-direction:column;gap:16px;
+                    animation:slideRight 0.4s ease both;" id="detailPanel">
           <div class="detail-empty" id="emptyState">
             <div class="de-icon">📋</div>
             <p>Selecciona un registro de la lista<br>para revisar sus datos completos</p>
@@ -162,9 +135,8 @@
     </div>
   </div>
 
-  <!-- Toast -->
   <div class="toast" id="toast"><span id="toastMsg"></span></div>
 
-<script type="module" src="../../assets/js/validar-registro.js"></script>
+<script type="module" src="../../assets/js/validar-registros.js"></script>
 </body>
 </html>
